@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": ".github/scripts/log-prompt.sh",
+        "powershell": "Add-Content -Path logs/session.log -Value \"Session started: $(Get-Date)\"",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "sessionEnd": [],
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": ".github/scripts/log-prompt.sh",
+        "powershell": ".github/scripts/log-prompt.ps1",
+        "cwd": ".",
+        "env": {
+          "LOG_LEVEL": "INFO"
+        }
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": ".github/scripts/pre-tool-use.sh",
+        "powershell": ".github/scripts/pre-tool-use.ps1",
+        "cwd": ".",
+        "env": {
+          "TOOL_NAME": "{{toolName}}"
+        }
+      }
+    ],
+    "postToolUse": [],
+    "errorOccurred": []
+  }
+}

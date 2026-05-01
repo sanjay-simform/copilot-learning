@@ -1,98 +1,419 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Copilot Learning - NestJS Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-ready NestJS backend project demonstrating clean, modular architecture with strict type safety, comprehensive error handling, and maintainable code patterns. Built with a focus on scalability, testability, and developer experience.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🎯 Project Overview
 
-## Description
+This project serves as a reference implementation for building NestJS applications following SOLID principles and clean architecture patterns. It includes a fully functional Products API with:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Feature-based modular structure
+- Input validation using DTOs with `class-validator`
+- Custom exception handling with global filters
+- Type-safe implementations with TypeScript strict mode
+- RESTful API conventions
+- Comprehensive test coverage
+- Production-ready error responses
 
-## Project setup
+## ⚡ Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm (or npm/yarn)
+
+### Installation
 
 ```bash
-$ pnpm install
+# Install dependencies
+pnpm install
+
+# Start development server (with auto-reload)
+pnpm start:dev
+
+# Server will run on http://localhost:3000
 ```
 
-## Compile and run the project
+### Verify Setup
+
+Test the API health check:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+curl http://localhost:3000
 ```
 
-## Run tests
+Expected response:
+
+```json
+{
+  "message": "Copilot Learning API is running!"
+}
+```
+
+## 📁 Project Structure
+
+```
+src/
+├── app.controller.ts          # Root HTTP route handler
+├── app.module.ts              # Root module with feature imports
+├── app.service.ts             # Root service
+├── main.ts                    # Application entry point & bootstrap
+└── products/                  # Feature module (canonical example)
+    ├── products.controller.ts # HTTP handlers for /products endpoints
+    ├── products.service.ts    # Business logic & data operations
+    ├── products.module.ts     # Feature module configuration
+    ├── dto/                   # Input/output validation schemas
+    │   ├── create-product.dto.ts
+    │   └── update-product.dto.ts
+    ├── filters/               # Custom exception handlers
+    │   └── http-exception.filter.ts
+    └── types/                 # TypeScript interfaces
+        └── product.types.ts
+```
+
+### Architecture Principles
+
+**Separation of Concerns**:
+
+- **Controllers** handle HTTP requests/responses and routing
+- **Services** encapsulate business logic and data operations
+- **DTOs** validate input and shape output
+- **Types** provide compile-time type safety
+- **Filters** handle errors consistently
+
+**Feature-Based Organization**:
+Each feature (e.g., `products/`) is self-contained with its own controller, service, module, DTOs, filters, and types. This makes features easy to test, scale, and maintain independently.
+
+## 🚀 API Reference
+
+### Products Endpoints
+
+#### Create Product
+
+```http
+POST /products
+Content-Type: application/json
+
+{
+  "name": "Laptop",
+  "sku": "LAPTOP-001",
+  "price": 999.99,
+  "description": "High-performance laptop"
+}
+```
+
+**Response** (201 Created):
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Laptop",
+  "sku": "LAPTOP-001",
+  "price": 999.99,
+  "description": "High-performance laptop",
+  "createdAt": "2026-05-01T10:30:00Z"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Invalid input (missing/invalid fields)
+- `409 Conflict` - SKU already exists
+
+#### Get All Products
+
+```http
+GET /products
+```
+
+**Response** (200 OK):
+
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Laptop",
+    "sku": "LAPTOP-001",
+    "price": 999.99,
+    "description": "High-performance laptop",
+    "createdAt": "2026-05-01T10:30:00Z"
+  }
+]
+```
+
+#### Get Product by ID
+
+```http
+GET /products/:id
+```
+
+**Response** (200 OK):
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "Laptop",
+  "sku": "LAPTOP-001",
+  "price": 999.99,
+  "description": "High-performance laptop",
+  "createdAt": "2026-05-01T10:30:00Z"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Invalid UUID format
+- `404 Not Found` - Product not found
+
+#### Update Product
+
+```http
+PATCH /products/:id
+Content-Type: application/json
+
+{
+  "name": "Gaming Laptop",
+  "price": 1299.99
+}
+```
+
+**Response** (200 OK): Updated product object
+
+**Error Responses**:
+
+- `400 Bad Request` - Invalid input or UUID format
+- `404 Not Found` - Product not found
+- `409 Conflict` - SKU conflict with another product
+
+#### Delete Product
+
+```http
+DELETE /products/:id
+```
+
+**Response** (204 No Content)
+
+**Error Responses**:
+
+- `400 Bad Request` - Invalid UUID format
+- `404 Not Found` - Product not found
+
+## 🛠️ Development
+
+### Running the Application
 
 ```bash
-# unit tests
-$ pnpm run test
+# Development server (with hot-reload)
+pnpm start:dev
 
-# e2e tests
-$ pnpm run test:e2e
+# Debug mode (Node debugger on port 9229)
+pnpm start:debug
 
-# test coverage
-$ pnpm run test:cov
+# Production build and start
+pnpm build
+pnpm start:prod
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Code Quality
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Format code with Prettier
+pnpm format
+
+# Lint and auto-fix issues
+pnpm lint
+
+# Run tests
+pnpm test
+
+# Run tests in watch mode (re-run on file changes)
+pnpm test:watch
+
+# Generate coverage report
+pnpm test:cov
+
+# Debug tests
+pnpm test:debug
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🧪 Testing
 
-## Resources
+The project includes unit tests for services and integration tests for API endpoints.
 
-Check out a few resources that may come in handy when working with NestJS:
+### Running Tests
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# Run all tests once
+pnpm test
 
-## Support
+# Run tests in watch mode for development
+pnpm test:watch
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Generate coverage report (target: >80% for critical paths)
+pnpm test:cov
 
-## Stay in touch
+# Run E2E tests
+pnpm test:e2e
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Test Structure
 
-## License
+- **Unit Tests** (`*.spec.ts`): Test services with mocked dependencies
+- **Integration Tests** (`test/`): Verify HTTP endpoint behavior
+- **Test Examples**: See `src/app.controller.spec.ts` and `test/app.e2e-spec.ts`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## 🏗️ Code Conventions
+
+### Naming Conventions
+
+- **Controllers**: `*.controller.ts`
+- **Services**: `*.service.ts`
+- **DTOs**: `create-*.dto.ts`, `update-*.dto.ts`
+- **Types**: `*.types.ts`
+- **Filters**: `*-exception.filter.ts`
+- **Modules**: `*.module.ts`
+- **Tests**: `*.spec.ts`
+
+### TypeScript Standards
+
+- Strict mode enabled (`strict: true` in `tsconfig.json`)
+- Explicit types for all function parameters and return values
+- No `any` types except when absolutely unavoidable
+- Use discriminated unions for related types
+- Keep types close to where they're used
+
+### Code Style
+
+- Use `const` by default, `let` only when reassignment is needed
+- Keep methods under 30 lines when possible
+- Add JSDoc comments for public methods and complex logic
+- Use descriptive, intention-revealing names
+- Follow ESLint configuration
+
+### Error Handling
+
+- Use NestJS built-in HTTP exceptions (`NotFoundException`, `ConflictException`, etc.)
+- Provide clear, actionable error messages
+- Include error context (IDs, values) for debugging
+- Use custom exception filters for consistent response formatting
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Currently, the application uses default configuration:
+
+- **PORT**: `3000` (default, can override with `PORT` env variable)
+
+Example:
+
+```bash
+PORT=8080 pnpm start
+```
+
+### Global Pipes
+
+The application includes global validation with:
+
+- `whitelist: true` - Strip unknown properties
+- `forbidNonWhitelisted: true` - Throw error on unknown properties
+- `transform: true` - Transform plain objects to DTO instances
+- `transformOptions.enableImplicitConversion: true` - Type coercion for primitives
+
+## 📚 Key Features
+
+### ✅ Input Validation
+
+All endpoints validate input using class-validator decorators. Invalid requests return `400 Bad Request` with detailed error messages.
+
+### ✅ Exception Handling
+
+Custom `HttpExceptionFilter` provides consistent error response formatting across all endpoints.
+
+### ✅ Type Safety
+
+Full TypeScript strict mode with explicit types prevents runtime errors and improves IDE experience.
+
+### ✅ RESTful Design
+
+API follows REST conventions:
+
+- `POST /products` - Create
+- `GET /products` - List
+- `GET /products/:id` - Retrieve
+- `PATCH /products/:id` - Update
+- `DELETE /products/:id` - Delete
+
+### ✅ Modular Architecture
+
+Feature-based structure makes it easy to:
+
+- Add new features independently
+- Test modules in isolation
+- Scale the application
+- Maintain clear separation of concerns
+
+## 🚨 Common Issues & Troubleshooting
+
+### Port Already in Use
+
+```bash
+# Use a different port
+PORT=3001 pnpm start:dev
+
+# Or kill the process using port 3000
+lsof -ti:3000 | xargs kill -9
+```
+
+### Validation Errors on Valid Input
+
+Check that:
+
+1. JSON is properly formatted (no trailing commas)
+2. Required fields are present (see DTO definitions)
+3. Field types match expectations (strings, numbers, etc.)
+4. Content-Type header is set to `application/json`
+
+### Tests Failing After Changes
+
+```bash
+# Clear Jest cache and re-run
+pnpm jest --clearCache
+pnpm test
+```
+
+### TypeScript Compilation Errors
+
+```bash
+# Check tsconfig.json for strict mode settings
+# Ensure all function parameters and returns have explicit types
+# Run ESLint to catch type issues
+pnpm lint
+```
+
+## 📖 Additional Resources
+
+- [NestJS Official Documentation](https://docs.nestjs.com)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Class Validator Documentation](https://github.com/typestack/class-validator)
+- [Project Code Standards](./.github/copilot-instructions.md) - Architecture principles and conventions
+
+## 🤝 Contributing
+
+When adding new features or modules, follow these guidelines:
+
+1. **Create a Feature Module**: Follow the `products/` structure
+2. **Write Tests First**: Unit tests for services, integration tests for endpoints
+3. **Validate Input**: Use DTOs with class-validator
+4. **Handle Errors**: Use appropriate NestJS exceptions
+5. **Maintain Types**: Keep TypeScript strict mode compliant
+6. **Document Code**: Add JSDoc for public methods
+7. **Format Code**: Run `pnpm format && pnpm lint` before committing
+
+## 📝 License
+
+UNLICENSED - Internal use only
+
+---
+
+**Last Updated**: May 1, 2026  
+**Version**: 0.0.1

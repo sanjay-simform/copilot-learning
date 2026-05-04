@@ -1,0 +1,45 @@
+graph TB
+    subgraph "NestJS Monolith"
+        subgraph "HTTP Layer"
+            RR["🔀 Rate Limiter<br/>Redis-backed"]
+            Auth["🔐 Auth Middleware<br/>JWT/Session"]
+        end
+        
+        subgraph "Feature Modules"
+            ProductsModule["📦 Products Module<br/>─ Controller<br/>─ Service<br/>─ Redis Cache"]
+            InventoryModule["📊 Inventory Module<br/>─ Stock Tracking<br/>─ Reservation System<br/>─ Real-time Locks"]
+            CartModule["🛒 Cart Module<br/>─ Session Storage<br/>─ Redis Cache"]
+            OrdersModule["📋 Orders Module<br/>─ Order Processing<br/>─ Queue Integration"]
+            UsersModule["👤 Users Module<br/>─ Auth<br/>─ Profiles<br/>─ Sessions"]
+            SearchModule["🔍 Search Module<br/>─ Full-text Search<br/>─ Filters & Facets"]
+        end
+        
+        subgraph "Shared Services"
+            QueueService["⏲️ Queue Service<br/>Bull/BullMQ"]
+            CacheService["💾 Cache Service<br/>Redis Abstraction"]
+            NotificationService["📢 Notifications<br/>Events & Webhooks"]
+        end
+    end
+    
+    subgraph "Data Layer"
+        PG["🗄️ PostgreSQL<br/>Primary: Write<br/>Replica 1: Read<br/>Replica 2: Analytics"]
+        Redis["🔴 Redis<br/>Cache, Sessions<br/>Locks, Queues"]
+    end
+    
+    subgraph "External Services"
+        PaymentGW["💳 Payment Gateway"]
+        EmailSvc["📧 Email Provider"]
+        Storage["📸 Image Storage"]
+    end
+    
+    RR & Auth --> ProductsModule & InventoryModule & CartModule & OrdersModule
+    ProductsModule & SearchModule --> CacheService
+    InventoryModule --> QueueService
+    OrdersModule --> QueueService & NotificationService
+    CartModule & CacheService --> Redis
+    QueueService --> Redis
+    
+    ProductsModule & InventoryModule & OrdersModule --> PG
+    NotificationService --> EmailSvc
+    OrdersModule --> PaymentGW
+    ProductsModule --> Storage

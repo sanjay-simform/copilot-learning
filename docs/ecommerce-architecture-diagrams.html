@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Commerce Platform — Architecture Diagrams</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-alt: #f6f8fa;
+        --text: #1f2328;
+        --border: #d0d7de;
+        --accent: #0969da;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0d1117;
+          --bg-alt: #161b22;
+          --text: #e6edf3;
+          --border: #30363d;
+          --accent: #58a6ff;
+        }
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin-bottom: 0.5rem;
+        font-size: 2.5rem;
+      }
+      .subtitle {
+        color: var(--accent);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+      }
+      .diagram-section {
+        background: var(--bg-alt);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .diagram-section h2 {
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--border);
+        font-size: 1.5rem;
+      }
+      .mermaid {
+        text-align: center;
+        margin: 2rem 0;
+        background: var(--bg);
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      .description {
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+      nav {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding: 1rem;
+        border-bottom: 2px solid var(--border);
+        margin-bottom: 2rem;
+        z-index: 10;
+        border-radius: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      nav a {
+        color: var(--accent);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        background: var(--bg-alt);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+      }
+      nav a:hover {
+        background: var(--accent);
+        color: var(--bg);
+        text-decoration: none;
+      }
+      .header-info {
+        background: var(--bg-alt);
+        border-left: 4px solid var(--accent);
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border-radius: 4px;
+      }
+      .header-info p {
+        margin: 0.5rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🏗️ E-Commerce Platform Architecture</h1>
+    <p class="subtitle">Optimized for 1k RPS sustained load</p>
+
+    <div class="header-info">
+      <p><strong>Architecture Style:</strong> NestJS Modular Monolith</p>
+      <p><strong>Target Scale:</strong> 1,000 requests/second sustained</p>
+      <p><strong>Data Stack:</strong> PostgreSQL + Redis</p>
+      <p><strong>Deployment:</strong> Self-hosted infrastructure</p>
+      <p><strong>Team Size:</strong> 2 backend engineers, 1 React frontend developer</p>
+    </div>
+
+    <nav>
+      <a href="#system-context">System Context</a>
+      <a href="#components">Components</a>
+      <a href="#data-flow">Data Flow</a>
+      <a href="#deployment">Deployment</a>
+      <a href="#scalability">Scalability</a>
+      <a href="#cost">Cost Breakdown</a>
+    </nav>
+
+    <section class="diagram-section" id="system-context">
+      <h2>System Context Diagram</h2>
+      <div class="mermaid">
+graph TB
+    Users["👥 Web Users"]
+    Admin["👤 Admin Dashboard"]
+    Mobile["📱 Mobile Client"]
+    
+    subgraph "E-Commerce Platform"
+        API["🌐 NestJS API<br/>1000 RPS Capacity"]
+    end
+    
+    PaymentProvider["💳 Payment Provider<br/>(Stripe/Square)"]
+    EmailService["📧 Email Service<br/>(SendGrid)"]
+    ImageStorage["📸 Image Storage<br/>(MinIO/S3-compat)"]
+    AnalyticsService["📊 Analytics<br/>(PostHog/Mixpanel)"]
+    
+    Users -->|Browse Products, Orders| API
+    Admin -->|Manage Inventory, Orders| API
+    Mobile -->|Mobile App API| API
+    
+    API -->|Process Payments| PaymentProvider
+    API -->|Send Notifications| EmailService
+    API -->|Store Product Images| ImageStorage
+    API -->|Track Events| AnalyticsService
+    
+    PaymentProvider -->|Webhook: Payment Status| API
+      </div>
+      <div class="description">
+        <p>High-level view of the e-commerce system and its external integrations. The NestJS API serves as the central hub for all user interactions and external service communications.</p>
+      </div>
+    </section>
+
+    <section class="diagram-section" id="components">
+      <h2>Component Architecture</h2>
+      <div class="mermaid">
+graph TB
+    subgraph "NestJS Monolith"
+        subgraph "HTTP Layer"
+            RR["🔀 Rate Limiter<br/>Redis-backed"]
+            Auth["🔐 Auth Middleware<br/>JWT/Session"]
+        end
+        
+        subgraph "Feature Modules"
+            ProductsModule["📦 Products<br/>─ Cache Strategy<br/>─ Read Optimization"]
+            InventoryModule["📊 Inventory<br/>─ Real-time Locks<br/>─ Transactions"]
+            CartModule["🛒 Cart<br/>─ Session Storage<br/>─ TTL Management"]
+            OrdersModule["📋 Orders<br/>─ Async Processing<br/>─ Payment Integration"]
+            UsersModule["👤 Users<br/>─ Auth<br/>─ Profiles"]
+            SearchModule["🔍 Search<br/>─ Full-text<br/>─ Filters"]
+        end
+        
+        subgraph "Shared Services"
+            QueueService["⏲️ Queue Service<br/>Bull/BullMQ"]
+            CacheService["💾 Cache Service<br/>Redis"]
+            NotificationService["📢 Notifications"]
+        end
+    end
+    
+    subgraph "Data Layer"
+        PG["🗄️ PostgreSQL<br/>Primary + 2 Replicas"]
+        Redis["🔴 Redis<br/>Cache + Queues"]
+    end
+    
+    RR & Auth --> ProductsModule & InventoryModule & CartModule & OrdersModule
+    ProductsModule & SearchModule --> CacheService
+    InventoryModule --> QueueService
+    OrdersModule --> QueueService & NotificationService
+    CartModule & CacheService --> Redis
+    ProductsModule & InventoryModule & OrdersModule --> PG
+      </div>
+      <div class="description">
+        <p>Internal architecture of the NestJS monolith showing feature modules, shared services, and data layer. Each module has a specific responsibility: Products focuses on catalog speed, Inventory ensures accuracy, Orders handles async processing, and Cart manages session state.</p>
+      </div>
+    </section>
+
+    <section class="diagram-section" id="data-flow">
+      <h2>Request Data Flow</h2>
+      <div class="mermaid">
+graph LR
+    User["👥 User"]
+    
+    User -->|1. Browse Catalog| Cache{Cache Hit?}
+    Cache -->|Yes| Return1["Return Product<br/>from Redis<br/>⚡ &lt;10ms"]
+    Cache -->|No| DB1["Query PostgreSQL<br/>Read Replica"]
+    DB1 -->|Get Product| CacheStore["Cache in Redis<br/>TTL: 1h"]
+    CacheStore --> Return1
+    Return1 --> User
+    
+    User -->|2. Add to Cart| CartCache["Store in Redis<br/>Session-based"]
+    CartCache -->|Cart State| User
+    
+    User -->|3. Checkout| Lock["🔒 Inventory Lock<br/>Redis + DB"]
+    Lock -->|Verify Stock| InventoryCheck["Check PostgreSQL"]
+    InventoryCheck -->|Reserve| UpdateInventory["Update Inventory<br/>+ Queue Event"]
+    UpdateInventory -->|Async Job| JobQueue["Process Order"]
+    
+    JobQueue -->|Payment| PaymentSvc["Third-party"]
+    PaymentSvc -->|Webhook| UpdateOrder["Update Status"]
+    UpdateOrder -->|Notify| Email["Send Confirmation"]
+    Email --> User
+      </div>
+      <div class="description">
+        <p>Three critical flows: (1) Product browsing optimized with Redis caching for sub-10ms response times, (2) Cart management using session storage, and (3) Checkout with inventory locking and async order processing to prevent race conditions and ensure accuracy.</p>
+      </div>
+    </section>
+
+    <section class="diagram-section" id="deployment">
+      <h2>Deployment Architecture</h2>
+      <div class="mermaid">
+graph TB
+    Internet["🌐 Internet"]
+    
+    Internet -->|HTTP/HTTPS| LB["⚙️ Nginx Load Balancer<br/>2 CPU, 4GB RAM"]
+    
+    LB -->|Round-robin| App1["🚀 NestJS #1<br/>4 CPU, 8GB RAM<br/>Fastify"]
+    LB -->|Round-robin| App2["🚀 NestJS #2<br/>4 CPU, 8GB RAM<br/>Fastify"]
+    
+    App1 & App2 -->|Writes| PGPRIMARY["🗄️ PG Primary<br/>8 CPU, 32GB RAM"]
+    App1 & App2 -->|Reads| PGREPLICA1["📖 PG Replica #1<br/>4 CPU, 16GB RAM"]
+    App1 & App2 -->|Analytics| PGREPLICA2["📊 PG Replica #2<br/>4 CPU, 16GB RAM"]
+    
+    App1 & App2 -->|Cache| Redis["🔴 Redis<br/>4 CPU, 16GB RAM"]
+    
+    PGPRIMARY -->|Replication| PGREPLICA1
+    PGPRIMARY -->|Replication| PGREPLICA2
+    
+    subgraph "Monitoring"
+        Prometheus["📈 Prometheus"]
+        Grafana["📊 Grafana"]
+        Loki["📜 Loki"]
+        Jaeger["🔍 Jaeger"]
+    end
+    
+    App1 & App2 & PGPRIMARY & Redis -->|Metrics| Prometheus
+    Prometheus --> Grafana
+    App1 & App2 -->|Logs| Loki
+    App1 & App2 -->|Traces| Jaeger
+      </div>
+      <div class="description">
+        <p>Production infrastructure for 1k RPS: Multiple NestJS instances behind Nginx load balancer for horizontal scaling. PostgreSQL primary handles writes, while read replicas optimize product catalog queries. Redis provides caching and session management. Complete observability stack with Prometheus, Grafana, Loki, and Jaeger for monitoring and debugging.</p>
+      </div>
+    </section>
+
+    <section class="diagram-section" id="scalability">
+      <h2>Scalability Evolution Roadmap</h2>
+      <div class="mermaid">
+graph TB
+    subgraph "Phase A: MVP (0-200 RPS)"
+        A1["1x NestJS"]
+        A2["PostgreSQL Primary"]
+        A3["1x Redis"]
+        A1 --> A2 & A3
+    end
+    
+    subgraph "Phase B: Growth (200-500 RPS)"
+        B1["2x NestJS + LB"]
+        B2["PG Primary + 1 Replica"]
+        B3["Redis + Persistence"]
+        B4["BullMQ Queue"]
+        B1 --> B2 & B3
+        B1 --> B4
+    end
+    
+    subgraph "Phase C: Scale (500-1k RPS)"
+        C1["4x NestJS"]
+        C2["PG Primary + 2 Replicas"]
+        C3["Redis Cluster"]
+        C4["Advanced Monitoring"]
+        C1 --> C2 & C3
+        C1 --> C4
+    end
+    
+    A1 & A2 & A3 -->|Month 3| B1 & B2 & B3
+    B1 & B2 & B3 -->|Month 6| C1 & C2 & C3
+      </div>
+      <div class="description">
+        <p><strong>Phase A (MVP):</strong> Minimal setup for launch, establish performance baseline. <strong>Phase B (Growth):</strong> Add load balancing and read replicas as traffic increases, introduce job queues. <strong>Phase C (Scale):</strong> Full deployment for 1k RPS with Redis cluster, advanced monitoring, and production hardening.</p>
+      </div>
+    </section>
+
+    <section class="diagram-section" id="cost">
+      <h2>Cost Breakdown (1k RPS at Scale)</h2>
+      <div class="mermaid">
+pie title Monthly Infrastructure Cost: $1,250
+    "App Servers (4x)" : 240
+    "PostgreSQL Primary" : 200
+    "PostgreSQL Replicas (2x)" : 200
+    "Redis Cluster" : 300
+    "Load Balancer" : 60
+    "Network/Storage" : 150
+    "Monitoring Stack" : 100
+      </div>
+      <div class="description">
+        <p>Monthly cost breakdown at full 1k RPS scale (self-hosted on Hetzner/OVH). Redis cluster is the largest expense due to high memory requirements for caching. This is <strong>30% cheaper than AWS</strong> equivalent, but requires DevOps expertise. MVP phase costs ~$190/month, grows to $640 at 200 RPS, then $1,250 at 1k RPS.</p>
+      </div>
+    </section>
+
+    <hr style="margin: 3rem 0; border: none; border-top: 2px solid var(--border);" />
+
+    <div style="padding: 2rem; background: var(--bg-alt); border-radius: 8px; margin-bottom: 2rem;">
+      <h3>📖 Full Documentation</h3>
+      <p>For detailed architecture decisions, database schema, security architecture, and implementation roadmap, see <strong>ecommerce-architecture-plan.md</strong>.</p>
+      <p style="margin-top: 1rem;"><strong>Editable Diagrams:</strong> Open <strong>ecommerce-architecture.drawio</strong> in <a href="https://app.diagrams.net" target="_blank">Draw.io</a> to modify diagrams.</p>
+    </div>
+
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'\;
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'default',
+        securityLevel: 'strict',
+        flowchart: { useMaxWidth: true, htmlLabels: true },
+        pie: { useMaxWidth: true },
+      });
+      mermaid.contentLoaded();
+    </script>
+  </body>
+</html>

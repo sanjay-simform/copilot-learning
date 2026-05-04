@@ -1,0 +1,22 @@
+graph LR
+    User["👥 User"]
+    
+    User -->|1. Browse Catalog| Cache{Cache Hit?}
+    Cache -->|Yes| Return1["Return Product<br/>from Redis<br/>⚡ &lt;10ms"]
+    Cache -->|No| DB1["Query PostgreSQL<br/>Read Replica"]
+    DB1 -->|Get Product| Cache
+    Cache --> Return1
+    Return1 --> User
+    
+    User -->|2. Add to Cart| CartCache["Cache in Redis<br/>Session-based"]
+    CartCache -->|Cart State| User
+    
+    User -->|3. Checkout| Lock["🔒 Acquire Inventory Lock<br/>Redis + DB Transaction"]
+    Lock -->|Verify Stock| InventoryCheck["Check PostgreSQL<br/>Inventory Table"]
+    InventoryCheck -->|Reserve Items| UpdateInventory["Update Stock<br/>PostgreSQL + Log to Queue"]
+    UpdateInventory -->|Queue Event| JobQueue["Job Queue<br/>Order Processing"]
+    
+    JobQueue -->|Async Processing| Payment["→ Payment Provider"]
+    Payment -->|Webhook| PaymentCallback["Update Order Status<br/>PostgreSQL"]
+    PaymentCallback -->|Notify| EmailSvc["→ Email Confirmation"]
+    EmailSvc --> User

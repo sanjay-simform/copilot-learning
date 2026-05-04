@@ -1,0 +1,32 @@
+graph TB
+    Internet["🌐 Internet"]
+    
+    Internet -->|HTTP/HTTPS| LB["⚙️ Nginx Load Balancer<br/>2 CPU, 4GB RAM<br/>Port 80/443"]
+    
+    LB -->|Round-robin| App1["🚀 NestJS Instance #1<br/>4 CPU, 8GB RAM<br/>Fastify Adapter"]
+    LB -->|Round-robin| App2["🚀 NestJS Instance #2<br/>4 CPU, 8GB RAM<br/>Fastify Adapter"]
+    
+    App1 & App2 -->|Write Queries| PGPRIMARY["🗄️ PostgreSQL Primary<br/>8 CPU, 32GB RAM<br/>ACID Transactions"]
+    App1 & App2 -->|Read Queries| PGREPLICA1["📖 PG Replica #1<br/>4 CPU, 16GB RAM<br/>Product Catalog"]
+    App1 & App2 -->|Analytics Queries| PGREPLICA2["📊 PG Replica #2<br/>4 CPU, 16GB RAM<br/>Reporting"]
+    
+    App1 & App2 -->|Cache/Sessions| Redis["🔴 Redis Server<br/>4 CPU, 16GB RAM<br/>Persistence Enabled"]
+    
+    PGPRIMARY -->|Replication| PGREPLICA1
+    PGPRIMARY -->|Replication| PGREPLICA2
+    
+    subgraph "Monitoring & Observability"
+        Prometheus["📈 Prometheus<br/>Metrics Scraping"]
+        Grafana["📊 Grafana<br/>Dashboards"]
+        Loki["📜 Loki<br/>Log Aggregation"]
+        Jaeger["🔍 Jaeger<br/>Distributed Tracing"]
+    end
+    
+    App1 & App2 & PGPRIMARY & Redis -->|Emit Metrics| Prometheus
+    Prometheus --> Grafana
+    App1 & App2 -->|Ship Logs| Loki
+    App1 & App2 -->|Trace Requests| Jaeger
+    
+    External["🔗 External Services"]
+    App1 & App2 -->|Webhooks| External
+    External -->|Callbacks| App1 & App2

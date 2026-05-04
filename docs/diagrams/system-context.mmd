@@ -1,0 +1,24 @@
+graph TB
+    Users["👥 Web Users"]
+    Admin["👤 Admin Dashboard"]
+    Mobile["📱 Mobile Client"]
+    
+    subgraph "E-Commerce Platform"
+        API["🌐 NestJS API<br/>1000 RPS Capacity"]
+    end
+    
+    PaymentProvider["💳 Payment Provider<br/>(Stripe/Square)"]
+    EmailService["📧 Email Service<br/>(SendGrid)"]
+    ImageStorage["📸 Image Storage<br/>(MinIO/S3-compat)"]
+    AnalyticsService["📊 Analytics<br/>(PostHog/Mixpanel)"]
+    
+    Users -->|Browse Products, Orders| API
+    Admin -->|Manage Inventory, Orders| API
+    Mobile -->|Mobile App API| API
+    
+    API -->|Process Payments| PaymentProvider
+    API -->|Send Notifications| EmailService
+    API -->|Store Product Images| ImageStorage
+    API -->|Track Events| AnalyticsService
+    
+    PaymentProvider -->|Webhook: Payment Status| API

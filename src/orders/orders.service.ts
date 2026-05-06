@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -65,7 +62,9 @@ export class OrdersService {
     const updated: Order = {
       ...order,
       ...(dto.customerName !== undefined && { customerName: dto.customerName }),
-      ...(dto.customerEmail !== undefined && { customerEmail: dto.customerEmail }),
+      ...(dto.customerEmail !== undefined && {
+        customerEmail: dto.customerEmail,
+      }),
       ...(dto.items !== undefined && { items: dto.items }),
       ...(dto.status !== undefined && { status: dto.status }),
       ...(dto.notes !== undefined && { notes: dto.notes }),

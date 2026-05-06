@@ -1,0 +1,24 @@
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import type { PlanStatus } from '../entities/plan.entity';
+
+export class CreatePlanDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  title!: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(2000)
+  description?: string;
+
+  @IsEnum(['pending', 'active', 'done'] as const)
+  @IsOptional()
+  status?: PlanStatus;
+}

@@ -46,7 +46,13 @@ export class UpdateOrderDto {
   @Type(() => UpdateOrderItemDto)
   items?: UpdateOrderItemDto[];
 
-  @IsEnum(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as const)
+  @IsEnum([
+    'pending',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
+  ] as const)
   @IsOptional()
   status?: OrderStatus;
 

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { HealthCheckService, HttpHealthIndicator, TypeOrmHealthIndicator } from '@nestjs/terminus';
+import {
+  HealthCheckService,
+  HttpHealthIndicator,
+  TypeOrmHealthIndicator,
+} from '@nestjs/terminus';
 
 @Injectable()
 export class HealthService {
